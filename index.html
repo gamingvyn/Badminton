@@ -1,40 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Badminton Game</title>
-<link rel="stylesheet" href="styles/style.css">
-<style>
-  body { text-align: center; background: #1C6641; color: #FFFFFF; font-family: Arial, sans-serif; }
-  #play-button { font-size: 20px; padding: 10px 20px; margin-top: 20px; cursor: pointer; }
-  #rank-display { font-size: 18px; margin-top: 20px; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Badminton Duel — Play in Browser</title>
+  <link rel="stylesheet" href="/styles/style.css">
 </head>
 <body>
-<h1>Badminton Game</h1>
-<p id="rank-display"></p>
-<button id="play-button">Play</button>
+  <main>
+    <h1>Badminton Duel</h1>
+    <div id="launcher">
+      <div id="rank-display">Loading rank…</div>
+      <button id="play-button">Play</button>
+      <p style="margin-top:12px; color:rgba(255,255,255,0.85)">Controls: ← → to move, ↑ to jump, Space to swing / serve, P to pause, R to restart</p>
+    </div>
+    <!-- canvas will be inserted by badminton.js as #gameCanvas -->
+  </main>
 
-<script src="game/badminton.js"></script>
-<script>
-// Load rank from localStorage
-const rankData = JSON.parse(localStorage.getItem('playerRank')) || {rankIndex:0,tierIndex:0,points:0};
-const RANKS = ['Bronze','Silver','Gold','Diamond','Platinum','Divine'];
-const TIERS = ['I','II','III'];
+  <script src="/scripts/main.js"></script>
+  <script src="/game/badminton.js"></script>
+  <script>
+    // initialize rank display and play button
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const data = JSON.parse(localStorage.getItem('playerRank')) || { rankIndex:0, tierIndex:0, points:0 };
+      const RANKS = ['Bronze','Silver','Gold','Diamond','Platinum','Divine'];
+      const TIERS = ['I','II','III'];
+      const rd = document.getElementById('rank-display');
+      rd.textContent = `Rank: ${RANKS[data.rankIndex]} ${TIERS[data.tierIndex]} (${data.points})`;
 
-// Display rank
-function updateRankDisplay(){
-  document.getElementById('rank-display').innerText = 
-    `Rank: ${RANKS[rankData.rankIndex]} Tier ${TIERS[rankData.tierIndex]} (${rankData.points})`;
-}
-updateRankDisplay();
-
-// Start game on button click
-document.getElementById('play-button').addEventListener('click', () => {
-  document.getElementById('play-button').style.display = 'none';
-  document.getElementById('rank-display').style.display = 'none';
-  game.run(); // Start the JS game from badminton.js
-});
-</script>
+      const play = document.getElementById('play-button');
+      play.addEventListener('click', ()=>{
+        // hide launcher UI
+        document.getElementById('launcher').style.display = 'none';
+        // Start game (badminton.js exposes `game` global)
+        if(window.game && typeof window.game.run === 'function'){
+          // run will create canvas and loop
+          window.game.run();
+        } else {
+          console.error('Game not loaded yet. Make sure /game/badminton.js is present.');
+          // fallback: attempt to call run after a short delay
+          setTimeout(()=>{ if(window.game && typeof window.game.run==='function') window.game.run(); }, 500);
+        }
+      });
+    });
+  </script>
 </body>
 </html>
