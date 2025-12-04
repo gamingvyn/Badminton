@@ -1,6 +1,4 @@
-// --------------------- Badminton.js ---------------------
-// HTML5 Canvas-based browser version
-
+// --------------------- Badminton.js (Updated) ---------------------
 const canvas = document.createElement('canvas');
 canvas.width = 1100;
 canvas.height = 640;
@@ -49,7 +47,6 @@ document.addEventListener('keyup', e => keys[e.key] = false);
 // --------------------- Rank System ---------------------
 const RANKS = ['Bronze','Silver','Gold','Diamond','Platinum','Divine'];
 const TIERS_PER_RANK = 3;
-
 function loadRank(){
     let data = JSON.parse(localStorage.getItem('playerRank'));
     if(!data) data = {rankIndex:0,tierIndex:0,points:0};
@@ -62,15 +59,11 @@ function saveRank(data){
 // --------------------- Classes ---------------------
 class Player {
     constructor(x,y,facingLeft=false,isHuman=true){
-        this.x = x; this.y = y;
-        this.vx = this.vy = 0;
+        this.x = x; this.y = y; this.vx = 0; this.vy = 0;
         this.width = PLAYER_WIDTH; this.height = PLAYER_HEIGHT;
-        this.facingLeft = facingLeft;
-        this.isHuman = isHuman;
-        this.onGround = true;
-        this.swinging = false;
-        this.swingTimer = 0;
-        this.swingCooldown = 0;
+        this.facingLeft = facingLeft; this.isHuman = isHuman;
+        this.onGround = true; this.swinging = false;
+        this.swingTimer = 0; this.swingCooldown = 0;
     }
     rect(){ return {x:this.x-this.width/2,y:this.y,width:this.width,height:this.height}; }
     racketRect(){
@@ -111,8 +104,7 @@ class BadmintonGame {
         this.ai = new Player(700,GROUND_Y-PLAYER_HEIGHT,true,false);
         this.shuttle = new Shuttle(this.human.x+40,this.human.y-30);
         this.scoreHuman=0; this.scoreAI=0; this.server='human';
-        this.rank=loadRank();
-        this.gameOver=false;
+        this.rank=loadRank(); this.gameOver=false; this.deuce=false;
     }
     handleInput(){
         this.human.vx=0;
@@ -127,11 +119,52 @@ class BadmintonGame {
         this.ai.vx = (Math.abs(this.ai.x-targetX)>5)?PLAYER_SPEED*Math.sign(targetX-this.ai.x):0;
         if(this.ai.onGround && this.shuttle.y<this.ai.y) this.ai.jump();
     }
+    checkCollisions(){
+        // Racket collision
+        let humanR = this.human.racketRect();
+        let aiR = this.ai.racketRect();
+        let s = this.shuttle;
+        if(this.rectIntersect(s.rect(),humanR) && this.human.swinging){
+            s.vx = 6; s.vy = -8; s.lastHitter='human';
+        }
+        if(this.rectIntersect(s.rect(),aiR) && this.ai.swinging){
+            s.vx = -6; s.vy = -8; s.lastHitter='ai';
+        }
+        // Net collision
+        let netX = COURT_MARGIN+COURT_WIDTH/2;
+        if(s.x+s.r>netX-NET_WIDTH/2 && s.x-s.r<netX+NET_WIDTH/2 && s.y+s.r>GROUND_Y-NET_HEIGHT){
+            s.vy=2; // bounce down
+        }
+        // Court boundaries
+        if(s.y+s.r>GROUND_Y){
+            if(s.lastHitter==='human') this.scoreHuman++;
+            else if(s.lastHitter==='ai') this.scoreAI++;
+            this.checkDeuce();
+            this.resetServe();
+        }
+    }
+    checkDeuce(){
+        this.deuce = (this.scoreHuman>=20 && this.scoreAI>=20);
+        if(this.scoreHuman>=WINNING_SCORE && this.scoreHuman-this.scoreAI>=2){
+            this.gameOver=true; this.rank.points+=3; saveRank(this.rank);
+        }
+        if(this.scoreAI>=WINNING_SCORE && this.scoreAI-this.scoreHuman>=2){
+            this.gameOver=true; this.rank.points=Math.max(0,this.rank.points-2); saveRank(this.rank);
+        }
+    }
+    rectIntersect(r1,r2){
+        return !(r2.x>r1.x+r1.width||r2.x+r2.width<r1.x||r2.y>r1.y+r1.height||r2.y+r2.height<r1.y);
+    }
+    resetServe(){
+        this.shuttle=new Shuttle(this.server==='human'?this.human.x+40:this.ai.x-40,this.server==='human'?this.human.y-30:this.ai.y-30);
+        this.shuttle.inPlay=true;
+    }
     update(){
         if(this.gameOver) return;
         this.handleInput(); this.aiUpdate();
         this.human.update(); this.ai.update();
         if(this.shuttle.inPlay) this.shuttle.update();
+        this.checkCollisions();
     }
     drawCourt(){
         ctx.fillStyle=COLOR_BG; ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -151,11 +184,13 @@ class BadmintonGame {
         ctx.fillText(`You: ${this.scoreHuman}  AI: ${this.scoreAI}`,canvas.width/2-80,40);
         ctx.fillStyle=COLOR_SERVE; ctx.fillText(`Serve: ${this.server}`,canvas.width/2-50,70);
         ctx.fillStyle=COLOR_TEXT; ctx.fillText(`Rank: ${RANKS[this.rank.rankIndex]} ${['I','II','III'][this.rank.tierIndex]} (${this.rank.points})`,20,40);
+        if(this.gameOver){ ctx.fillStyle='#FF0'; ctx.fillText('GAME OVER! Press R to Restart',canvas.width/2-180,100); }
     }
     restart(){
         this.scoreHuman=0; this.scoreAI=0; this.server='human';
         this.shuttle=new Shuttle(this.human.x+40,this.human.y-30);
         this.gameOver=false;
+        this.rank=loadRank();
     }
     run(){
         this.update(); this.drawCourt(); this.drawPlayersAndShuttle();
