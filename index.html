@@ -1,48 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Badminton Duel — Play in Browser</title>
-  <link rel="stylesheet" href="/styles/style.css">
+<meta charset="UTF-8">
+<title>Badminton Web Game</title>
+<link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-  <main>
-    <h1>Badminton Duel</h1>
-    <div id="launcher">
-      <div id="rank-display">Loading rank…</div>
-      <button id="play-button">Play</button>
-      <p style="margin-top:12px; color:rgba(255,255,255,0.85)">Controls: ← → to move, ↑ to jump, Space to swing / serve, P to pause, R to restart</p>
+
+<div id="launcher">
+    <h1>Badminton Game</h1>
+    <p id="rank-display"></p>
+    <div id="rank-progress"><div class="bar"></div><div class="bar-label"></div></div>
+    <button id="play-button">Play</button>
+    <button id="howto-button">How to Play</button>
+</div>
+
+<div id="howto" class="hidden">
+    <div id="howto-content">
+        <h2>How to Play</h2>
+        <ul>
+            <li>Use <strong>Arrow Keys</strong> to move (Left/Right) and jump (Up)</li>
+            <li>Press <strong>Spacebar</strong> to swing your racket</li>
+            <li>First to 21 points wins (deuce applies if both reach 20)</li>
+            <li>Rank progresses after each win or loss</li>
+        </ul>
+        <button id="close-howto">Close</button>
     </div>
-    <!-- canvas will be inserted by badminton.js as #gameCanvas -->
-  </main>
+</div>
 
-  <script src="/scripts/main.js"></script>
-  <script src="/game/badminton.js"></script>
-  <script>
-    // initialize rank display and play button
-    document.addEventListener('DOMContentLoaded', ()=>{
-      const data = JSON.parse(localStorage.getItem('playerRank')) || { rankIndex:0, tierIndex:0, points:0 };
-      const RANKS = ['Bronze','Silver','Gold','Diamond','Platinum','Divine'];
-      const TIERS = ['I','II','III'];
-      const rd = document.getElementById('rank-display');
-      rd.textContent = `Rank: ${RANKS[data.rankIndex]} ${TIERS[data.tierIndex]} (${data.points})`;
+<script src="game/badminton.js"></script>
+<script src="main.js"></script>
 
-      const play = document.getElementById('play-button');
-      play.addEventListener('click', ()=>{
-        // hide launcher UI
-        document.getElementById('launcher').style.display = 'none';
-        // Start game (badminton.js exposes `game` global)
-        if(window.game && typeof window.game.run === 'function'){
-          // run will create canvas and loop
-          window.game.run();
-        } else {
-          console.error('Game not loaded yet. Make sure /game/badminton.js is present.');
-          // fallback: attempt to call run after a short delay
-          setTimeout(()=>{ if(window.game && typeof window.game.run==='function') window.game.run(); }, 500);
-        }
-      });
-    });
-  </script>
 </body>
 </html>
