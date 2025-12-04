@@ -1,102 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Badminton Game – Home</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
-            color: #fff;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        .container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.4);
-        }
-        h1 {
-            margin-top: 0;
-            font-size: 3rem;
-        }
-        .rank-box {
-            margin: 20px 0;
-            font-size: 1.4rem;
-            background: rgba(255,255,255,0.08);
-            padding: 15px;
-            border-radius: 10px;
-        }
-        .play-btn {
-            margin-top: 25px;
-            padding: 15px 40px;
-            font-size: 1.3rem;
-            border: none;
-            border-radius: 10px;
-            background: #4caf50;
-            color: #fff;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .play-btn:hover {
-            background: #45a049;
-        }
-        .note {
-            margin-top: 30px;
-            opacity: 0.75;
-            font-size: 0.9rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Badminton Game</title>
+<link rel="stylesheet" href="styles/style.css">
+<style>
+  body { text-align: center; background: #1C6641; color: #FFFFFF; font-family: Arial, sans-serif; }
+  #play-button { font-size: 20px; padding: 10px 20px; margin-top: 20px; cursor: pointer; }
+  #rank-display { font-size: 18px; margin-top: 20px; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Badminton Duel</h1>
-        <div class="rank-box" id="rankBox">
-            Loading rank...
-        </div>
-        <button class="play-btn" onclick="startGame()">Play</button>
-        <div class="note">This page is a launcher. The actual game runs as a downloadable program.</div>
-    </div>
+<h1>Badminton Game</h1>
+<p id="rank-display"></p>
+<button id="play-button">Play</button>
 
-    <script>
-        // Example rank data structure – replace with real persistence logic
-        const ranks = [
-            "Bronze I", "Bronze II", "Bronze III",
-            "Silver I", "Silver II", "Silver III",
-            "Gold I", "Gold II", "Gold III",
-            "Diamond I", "Diamond II", "Diamond III",
-            "Platinum I", "Platinum II", "Platinum III",
-            "Divine I", "Divine II", "Divine III"
-        ];
+<script src="game/badminton.js"></script>
+<script>
+// Load rank from localStorage
+const rankData = JSON.parse(localStorage.getItem('playerRank')) || {rankIndex:0,tierIndex:0,points:0};
+const RANKS = ['Bronze','Silver','Gold','Diamond','Platinum','Divine'];
+const TIERS = ['I','II','III'];
 
-        let playerRankIndex = 0; // Example starting rank
-        let rankPoints = 0;
-        const pointsPerTier = 10; // Example requirement per tier
+// Display rank
+function updateRankDisplay(){
+  document.getElementById('rank-display').innerText = 
+    `Rank: ${RANKS[rankData.rankIndex]} Tier ${TIERS[rankData.tierIndex]} (${rankData.points})`;
+}
+updateRankDisplay();
 
-        function updateRankDisplay() {
-            const nextTierPoints = pointsPerTier - (rankPoints % pointsPerTier);
-            const rankName = ranks[playerRankIndex];
-
-            document.getElementById("rankBox").innerHTML = `
-                <strong>Rank:</strong> ${rankName}<br/>
-                <strong>Progress:</strong> ${rankPoints} pts<br/>
-                <strong>Next Rank In:</strong> ${nextTierPoints} pts
-            `;
-        }
-
-        updateRankDisplay();
-
-        function startGame() {
-            alert("This would launch the Python game executable.");
-        }
-    </script>
+// Start game on button click
+document.getElementById('play-button').addEventListener('click', () => {
+  document.getElementById('play-button').style.display = 'none';
+  document.getElementById('rank-display').style.display = 'none';
+  game.run(); // Start the JS game from badminton.js
+});
+</script>
 </body>
 </html>
