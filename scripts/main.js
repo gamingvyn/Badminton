@@ -12,31 +12,47 @@ const rankData = JSON.parse(localStorage.getItem('playerRank')) || {
 const RANKS = ['Bronze', 'Silver', 'Gold', 'Diamond', 'Platinum', 'Divine'];
 const TIERS = ['I', 'II', 'III'];
 
-// Update rank display on homepage
-function updateRankDisplay() {
+// Display rank
+function updateRankDisplay(){
     const display = document.getElementById('rank-display');
     if (!display) return;
-
     display.textContent = `Rank: ${RANKS[rankData.rankIndex]} Tier ${TIERS[rankData.tierIndex]} (${rankData.points} pts)`;
+    
+    const progressEl = document.getElementById('rank-progress');
+    if(progressEl){
+        // Example: points needed per tier can be 6 + rankIndex*4 + tierIndex*2
+        const needed = 6 + rankData.rankIndex*4 + rankData.tierIndex*2;
+        const pct = Math.round((rankData.points/needed)*100);
+        progressEl.innerHTML = `<div class="bar" style="width:${pct}%"></div><div class="bar-label">${rankData.points}/${needed}</div>`;
+    }
 }
 
-// Attach button logic once DOM is ready
+updateRankDisplay();
+
 window.addEventListener('DOMContentLoaded', () => {
-    updateRankDisplay();
-
     const playBtn = document.getElementById('play-button');
-    if (playBtn) {
-        playBtn.addEventListener('click', () => {
-            // Hide homepage UI
-            playBtn.style.display = 'none';
-            const rankDisp = document.getElementById('rank-display');
-            if (rankDisp) rankDisp.style.display = 'none';
+    const howtoBtn = document.getElementById('howto-button');
+    const closeHowto = document.getElementById('close-howto');
 
-            // Start game from badminton.js
-            if (typeof game !== 'undefined') {
-                game.run();
+    if(howtoBtn){ 
+        howtoBtn.addEventListener('click', ()=>{
+            document.getElementById('howto').classList.remove('hidden');
+        }); 
+    }
+    if(closeHowto){ 
+        closeHowto.addEventListener('click', ()=>{
+            document.getElementById('howto').classList.add('hidden');
+        }); 
+    }
+
+    if(playBtn){
+        playBtn.addEventListener('click', ()=>{
+            const launcher = document.getElementById('launcher');
+            if(launcher) launcher.style.display='none';
+            if(window.game && typeof window.game.run === 'function'){
+                window.game.run();
             } else {
-                console.error("Game object missing — ensure badminton.js is loaded.");
+                console.error('Game object not ready yet.');
             }
         });
     }
