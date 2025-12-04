@@ -1,8 +1,8 @@
 /* ==========================================================
-   main.js - Homepage Logic for Badminton Web Game (Fixed Buttons)
+   main.js - Homepage Logic for Badminton Web Game (Fixed with window.onload)
    ========================================================== */
 
-document.addEventListener('DOMContentLoaded', () => {
+window.onload = function(){
 
     // Load rank from localStorage or create default
     const rankData = JSON.parse(localStorage.getItem('playerRank')) || {
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const progressEl = document.getElementById('rank-progress');
         if(progressEl){
-            // Example: points needed per tier can be 6 + rankIndex*4 + tierIndex*2
+            // Points needed per tier can be 6 + rankIndex*4 + tierIndex*2
             const needed = 6 + rankData.rankIndex*4 + rankData.tierIndex*2;
             const pct = Math.min(Math.round((rankData.points/needed)*100), 100);
             progressEl.innerHTML = `<div class="bar" style="width:${pct}%"></div><div class="bar-label">${rankData.points}/${needed}</div>`;
@@ -36,10 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const howtoBtn = document.getElementById('howto-button');
     const closeHowto = document.getElementById('close-howto');
 
+    console.log('Buttons:', {playBtn, howtoBtn, closeHowto}); // Debug: ensure elements exist
+
     if(playBtn){
         playBtn.addEventListener('click', ()=>{
             const launcher = document.getElementById('launcher');
             if(launcher) launcher.style.display='none';
+
             if(window.game && typeof window.game.run === 'function'){
                 window.game.run();
             } else {
@@ -50,14 +53,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(howtoBtn){ 
         howtoBtn.addEventListener('click', ()=>{
-            document.getElementById('howto').classList.remove('hidden');
+            const howtoDiv = document.getElementById('howto');
+            if(howtoDiv) howtoDiv.classList.remove('hidden');
         }); 
     }
 
     if(closeHowto){ 
         closeHowto.addEventListener('click', ()=>{
-            document.getElementById('howto').classList.add('hidden');
+            const howtoDiv = document.getElementById('howto');
+            if(howtoDiv) howtoDiv.classList.add('hidden');
         }); 
     }
 
-});
+};
