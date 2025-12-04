@@ -32,6 +32,7 @@ SHUTTLE_GRAVITY = 0.55
 DRAG_COEFF = 0.0026
 
 WINNING_SCORE = 21
+AI_REACTION = 15  # frames delay for AI reaction
 
 # Colors
 COLOR_BG = (28, 102, 65)
@@ -48,8 +49,44 @@ COLOR_SERVE = (255, 220, 60)
 RANKS = ["Bronze", "Silver", "Gold", "Diamond", "Platinum", "Divine"]
 TIERS_PER_RANK = 3
 
-def points_needed_for_tier(rank_index, tier_index):
-    return 6 + rank_index * 4 + tier_index * 2
+class Rank:
+    def __init__(self):
+        self.rank_index = 0
+        self.tier_index = 0
+        self.points = 0
+
+    def add_win_points(self):
+        self.points += 3
+        self.update_tier()
+
+    def add_loss_points(self):
+        self.points -= 2
+        self.update_tier()
+
+    def update_tier(self):
+        while self.points >= self.points_needed():
+            self.points -= self.points_needed()
+            if self.tier_index < TIERS_PER_RANK-1:
+                self.tier_index += 1
+            elif self.rank_index < len(RANKS)-1:
+                self.rank_index += 1
+                self.tier_index = 0
+        while self.points < 0:
+            if self.tier_index > 0:
+                self.tier_index -= 1
+                self.points += self.points_needed()
+            elif self.rank_index > 0:
+                self.rank_index -= 1
+                self.tier_index = TIERS_PER_RANK-1
+                self.points += self.points_needed()
+            else:
+                self.points = 0
+
+    def points_needed(self):
+        return 6 + self.rank_index * 4 + self.tier_index * 2
+
+    def display(self):
+        return f"{RANKS[self.rank_index]} {['I','II','III'][self.tier_index]} ({self.points}/{self.points_needed()})"
 
 # --------------------- Helper functions ---------------------
 def clamp(x, a, b):
@@ -152,6 +189,8 @@ class BadmintonGame:
         self.serve_ready = False
         self.left_down = self.right_down = self.up_down = False
         self.game_over = False
+        self.rank = Rank()
+        self.ai_difficulty = 1  # will scale at Diamond and above
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -162,6 +201,7 @@ class BadmintonGame:
                 if event.key == pygame.K_RIGHT: self.right_down = True
                 if event.key == pygame.K_UP: self.up_down = True
                 if event.key == pygame.K_SPACE: self.human.start_swing()
+                if event.key == pygame.K_r and self.game_over: self.restart_game()
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT: self.left_down = False
                 if event.key == pygame.K_RIGHT: self.right_down = False
@@ -173,11 +213,23 @@ class BadmintonGame:
         if self.right_down: self.human.vx = PLAYER_SPEED
         if self.up_down and self.human.on_ground: self.human.jump()
 
+    def ai_update(self):
+        # Simplified AI: moves toward shuttle
+        target_x = self.shuttle.x
+        if abs(self.ai.x - target_x) > 5:
+            self.ai.vx = PLAYER_SPEED * sign(target_x - self.ai.x)
+        else:
+            self.ai.vx = 0
+        if self.ai.on_ground and self.shuttle.y < self.ai.y:  # jump to hit
+            self.ai.jump()
+
     def update(self):
-        self.human_input_update()
-        self.human.update_physics()
-        self.ai.update_physics()
-        if self.shuttle.in_play: self.shuttle.update()
+        if not self.game_over:
+            self.human_input_update()
+            self.ai_update()
+            self.human.update_physics()
+            self.ai.update_physics()
+            if self.shuttle.in_play: self.shuttle.update()
 
     def draw_court(self):
         self.screen.fill(COLOR_BG)
@@ -193,6 +245,21 @@ class BadmintonGame:
         pygame.draw.rect(self.screen, COLOR_LINES, self.human.get_racket_rect())
         pygame.draw.rect(self.screen, COLOR_LINES, self.ai.get_racket_rect())
         pygame.draw.circle(self.screen, COLOR_SHUTTLE, (int(self.shuttle.x), int(self.shuttle.y)), self.shuttle.r)
+        font = pygame.font.SysFont(None, 36)
+        score_text = font.render(f"You: {self.score_human}  AI: {self.score_ai}", True, COLOR_TEXT)
+        self.screen.blit(score_text, (SCREEN_WIDTH//2 - score_text.get_width()//2, 20))
+        serve_text = font.render(f"Serve: {self.server.capitalize()}", True, COLOR_SERVE)
+        self.screen.blit(serve_text, (SCREEN_WIDTH//2 - serve_text.get_width()//2, 60))
+        rank_text = font.render(f"Rank: {self.rank.display()}", True, COLOR_TEXT)
+        self.screen.blit(rank_text, (20, 20))
+
+    def restart_game(self):
+        self.score_human = 0
+        self.score_ai = 0
+        self.server = 'human'
+        self.in_serve_state = True
+        self.shuttle = Shuttle(self.human.x + 40, self.human.y - 30)
+        self.game_over = False
 
     def run(self):
         while True:
