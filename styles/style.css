@@ -1,129 +1,190 @@
-/* ==========================================================
-   style.css - Advanced styling for Badminton Web Game
-   ========================================================== */
+/* =============================================
+   PROFESSIONAL BADMINTON GAME — GLOBAL STYLING
+   ============================================= */
 
-/* Reset & body */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(to bottom, #1c6641, #14432b);
-    color: #fff;
-    text-align: center;
+  background: radial-gradient(circle at center, #1e1e1e 0%, #111 100%);
+  color: #fff;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Launcher Panel */
-#launcher {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.75);
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    width: 300px;
+#game-root {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  height: 100%;
+  max-height: 900px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-#launcher h1 {
-    font-size: 32px;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 4px #000;
+/* ====================================================
+   LAUNCHER / HOME MENU
+   ==================================================== */
+.launcher {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.6s ease forwards;
 }
 
-#rank-display {
-    font-size: 18px;
-    margin-bottom: 15px;
+.launcher h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 35px;
+  text-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+  letter-spacing: 2px;
 }
 
-#rank-progress {
-    width: 100%;
-    height: 20px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 10px;
-    margin-bottom: 20px;
-    position: relative;
+.menu-btn {
+  width: 260px;
+  padding: 16px 0;
+  margin: 12px 0;
+  background: linear-gradient(135deg, #0ae 0%, #08f 100%);
+  border: none;
+  color: #fff;
+  font-size: 1.3rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
 }
 
-#rank-progress .bar {
-    height: 100%;
-    background: #ffd700;
-    border-radius: 10px 0 0 10px;
-    transition: width 0.3s ease;
+.menu-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 150, 255, 0.45);
 }
 
-#rank-progress .bar-label {
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    top: 0;
-    left: 0;
-    font-size: 12px;
-    line-height: 20px;
-    color: #000;
+.menu-btn:active {
+  transform: scale(0.97);
 }
 
-/* Buttons */
-button {
-    font-size: 18px;
-    padding: 10px 20px;
-    margin: 10px 0;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(to right, #4caf50, #2e7d32);
-    color: #fff;
-    transition: all 0.3s ease;
+/* ====================================================
+   RANK DISPLAY
+   ==================================================== */
+.rank-box {
+  width: 300px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+  text-align: center;
+  margin-bottom: 25px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.3);
 }
 
-button:hover {
-    transform: scale(1.05);
-    background: linear-gradient(to right, #81c784, #388e3c);
+.rank-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 8px;
 }
 
-/* How-to modal */
-#howto {
-    position: fixed;
-    top:0; left:0;
-    width:100%;
-    height:100%;
-    background: rgba(0,0,0,0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    z-index: 999;
-    font-size: 16px;
-    padding: 20px;
+.rank-value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: #0af;
 }
 
-#howto.hidden {
-    display: none;
+.progress-container {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
 }
 
-#howto-content {
-    max-width: 500px;
-    text-align: left;
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #09f, #0cf);
+  transition: width 0.5s ease;
 }
 
-#close-howto {
-    display: block;
-    margin-top: 20px;
-    background: #c62828;
+/* ====================================================
+   GAME CANVAS + COURT BACKGROUND
+   ==================================================== */
+#game-canvas {
+  background: radial-gradient(circle at 50% 60%, #0a4816 0%, #05300f 100%);
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+  border-radius: 14px;
 }
 
-/* Canvas */
-canvas#gameCanvas {
-    display: block;
-    margin: 0 auto;
-    background: linear-gradient(to top, #0c4d2d, #1c6641);
-    border: 3px solid #fff;
-    border-radius: 10px;
+/* ====================================================
+   MODALS
+   ==================================================== */
+.modal-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(5px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.4s ease forwards;
 }
 
-/* Responsive */
-@media(max-width: 600px){
-    #launcher { width: 90%; padding: 30px; }
-    #launcher h1 { font-size: 28px; }
-    button { font-size: 16px; }
+.modal {
+  background: #1b1b1b;
+  padding: 30px;
+  width: 420px;
+  border-radius: 20px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+  animation: dropIn 0.5s ease forwards;
+}
+
+.modal button {
+  margin-top: 18px;
+  padding: 14px 0;
+  width: 180px;
+  font-size: 1.1rem;
+  background: linear-gradient(135deg, #0ae, #07f);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.modal button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0,150,255,0.4);
+}
+
+/* ====================================================
+   ANIMATIONS
+   ==================================================== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dropIn {
+  from { transform: translateY(-25px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
