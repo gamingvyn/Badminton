@@ -1,35 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Badminton Web Game</title>
-<link rel="stylesheet" href="styles/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Badminton Pro</title>
+  <link rel="stylesheet" href="styles/style.css" />
 </head>
 <body>
+  <!-- Launcher Wrapper -->
+  <div id="launcher" class="launcher-container">
+    <div class="launcher-card fade-in">
+      <h1 class="game-title">Badminton Pro</h1>
 
-<div id="launcher">
-    <h1>Badminton Game</h1>
-    <p id="rank-display"></p>
-    <div id="rank-progress"><div class="bar"></div><div class="bar-label"></div></div>
-    <button id="play-button">Play</button>
-    <button id="howto-button">How to Play</button>
-</div>
+      <div id="rank-display" class="rank-display"></div>
+      <div id="rank-progress" class="rank-bar"></div>
 
-<div id="howto" class="hidden">
-    <div id="howto-content">
-        <h2>How to Play</h2>
-        <ul>
-            <li>Use <strong>Arrow Keys</strong> to move (Left/Right) and jump (Up)</li>
-            <li>Press <strong>Spacebar</strong> to swing your racket</li>
-            <li>First to 21 points wins (deuce applies if both reach 20)</li>
-            <li>Rank progresses after each win or loss</li>
-        </ul>
-        <button id="close-howto">Close</button>
+      <!-- Play Button -->
+      <button id="play-button" class="btn primary">Play</button>
+
+      <!-- How to Play Button -->
+      <button id="howto-button" class="btn secondary">How to Play</button>
     </div>
-</div>
+  </div>
 
-<script src="game/badminton.js"></script>
-<script src="main.js"></script>
+  <!-- How To Play Modal -->
+  <div id="howto" class="modal hidden">
+    <div class="modal-content">
+      <h2>How to Play</h2>
+      <p>Move with <strong>← →</strong><br>
+      Jump / prepare shot with <strong>↑</strong><br>
+      Swing with <strong>Spacebar</strong><br>
+      First to 21 points wins. Deuce applies.</p>
+      <button id="close-howto" class="btn close">Close</button>
+    </div>
+  </div>
 
+  <!-- Game Root (canvas will be injected here) -->
+  <div id="game-root"></div>
+
+  <script src="scripts/main.js" defer></script>
+  <script src="game/loader.js" defer></script>
+  <script src="game/badminton.js" defer></script>
 </body>
 </html>
